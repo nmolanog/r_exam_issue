@@ -1,0 +1,82 @@
+```{r data generation, echo = FALSE, results = "hide"}
+rm(list=ls())
+library(pacman)
+p_load("exams")
+p_load("tidyverse")
+p_load("MCMCpack")
+p_load(kableExtra)
+
+mw<-70
+sdw<-15
+n<-sample(7:15,1)
+
+dat<-rnorm(n,mw,sdw)%>%round(2)
+
+dat_Q<-quantile(dat,probs=c(.25,.5,.75))%>%round(4)
+dat_mean<-mean(dat)%>%round(4)
+dat_var<-var(dat)%>%round(4)
+dat_sd<-sd(dat)%>%round(4)
+
+dat_res<-data.frame(param=c("mean","var","sd","Q1","Q2","Q3"),
+                    est=c(dat_mean,dat_var,dat_sd,dat_Q))
+
+dat_df<-data.frame(id=1:length(dat),peso=dat)
+dat_df$peso<-dat_df$peso%>%str_replace("\\.",",")
+
+
+anslistTRUE<-c(paste0("El estimador del valor esperado es ",dat_mean),
+               paste0("El estimador de la varianza es ",dat_var),
+               paste0("El estimador de la desviación estándar es ",dat_sd),
+               paste0("El estimador del cuantil 0.25 es ",dat_Q[1]),
+               paste0("El estimador del cuantil 0.5 es ",dat_Q[2]),
+               paste0("El estimador de la mediana es ",dat_Q[2]),
+               paste0("El estimador del cuantil 0.75 es ",dat_Q[3])
+               )
+
+nrep<-3
+anslistFALSE<-c(paste0("El estimador del valor esperado es ",dat_res[! dat_res$param %in% "mean","est"])%>%sample(nrep),
+                paste0("El estimador de la varianza es ",dat_res[! dat_res$param %in% "var","est"])%>%sample(nrep),
+                paste0("El estimador de la desviación estándar es ",dat_res[! dat_res$param %in% "sd","est"])%>%sample(nrep),
+                paste0("El estimador del cuantil 0.25 es ",dat_res[! dat_res$param %in% "Q1","est"])%>%sample(nrep),
+                paste0("El estimador del cuantil 0.5 es ",dat_res[! dat_res$param %in% "Q2","est"])%>%sample(nrep),
+                paste0("El estimador de la mediana es ",dat_res[! dat_res$param %in% "Q2","est"])%>%sample(nrep),
+                paste0("El estimador del cuantil 0.75 es ",dat_res[! dat_res$param %in% "Q3","est"])%>%sample(nrep)
+)
+
+anslist<-c(anslistTRUE,anslistFALSE)
+
+sol<-c(rep("Verdadero",length(anslistTRUE)),
+       rep("Falso",length(anslistFALSE)))
+```
+
+
+Question
+========
+Considere los siguientes datos de peso de una muestra de `r n` sujetos
+
+```{r conttabl, echo=FALSE}
+kableExtra::kable_styling(
+  knitr::kable(dat_df, format = "html", booktabs = TRUE),
+  bootstrap_options = "bordered", full_width = FALSE, position = "left")
+```
+
+Seleccione las afirmaciones verdaderas:
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(anslist, markup = "markdown")
+```
+
+
+Solution
+========
+
+```{r solutionlist, echo = FALSE, results = "asis"}
+answerlist(sol, markup = "markdown")
+```
+
+Meta-information
+================
+exname: gjkgd
+extype: mchoice
+exsolution: `r mchoice2string(sol=="Verdadero")`
+exshuffle: `r length(sol)`
